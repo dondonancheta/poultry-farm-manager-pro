@@ -107,7 +107,7 @@ class ReportController extends Controller
             return $pdf->download($filename);
         }
 
-        // XLSX via CSV (client opens in Excel)
+        // CSV download (opens in Excel — no extra library needed)
         $filename = Str::slug($title) . '_' . now()->format('Ymd') . '.csv';
         $headers  = [
             'Content-Type'        => 'text/csv; charset=UTF-8',
