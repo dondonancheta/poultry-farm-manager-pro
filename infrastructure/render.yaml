@@ -37,10 +37,6 @@ services:
     dockerfilePath: infrastructure/server/Dockerfile
     dockerContext: .
     plan: free
-    disk:
-      name: laravel-storage
-      mountPath: /var/www/html/storage
-      sizeGB: 1
     envVars:
       - key: APP_NAME
         value: PoultryFarm Pro API
