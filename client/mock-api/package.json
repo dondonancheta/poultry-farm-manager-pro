@@ -1,0 +1,16 @@
+{
+  "name": "poultry-farm-pro-mock-api",
+  "version": "1.0.0",
+  "description": "Express mock API for PoultryFarm Pro — mirrors Laravel 12 API contract",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev":   "node --watch server.js"
+  },
+  "dependencies": {
+    "express":    "^4.18.0",
+    "cors":       "^2.8.5",
+    "jsonwebtoken":"^9.0.0",
+    "bcryptjs":   "^2.4.3"
+  }
+}
