@@ -35,6 +35,11 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this._token());
   readonly role            = computed(() => this._user()?.role ?? null);
 
+  hasRole(...roles: string[]): boolean {
+    const r = this._user()?.role;
+    return r ? roles.includes(r) : false;
+  }
+
   // ── Login — real API first, demo fallback if offline ─────────────────────
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http
