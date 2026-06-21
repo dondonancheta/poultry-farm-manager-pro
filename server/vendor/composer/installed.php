@@ -3,7 +3,7 @@
         'name' => 'poultry-farm-pro/api',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '20bdfdfbb9b297ed7dfb82913319f9e4b36a3e93',
+        'reference' => 'd3c1825815f07db75ad23738dd7f566c0a3ffb8c',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -712,7 +712,7 @@
         'poultry-farm-pro/api' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '20bdfdfbb9b297ed7dfb82913319f9e4b36a3e93',
+            'reference' => 'd3c1825815f07db75ad23738dd7f566c0a3ffb8c',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

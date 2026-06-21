@@ -1,29 +1,8 @@
-# Node
 node_modules/
-mock-api/node_modules/
-
-# Angular build output
 dist/
 .angular/
-
-# Environment secrets (keep .env.example)
 .env
 .env.local
-.env.development.local
-.env.production.local
-
-# OS
 .DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-
-# Logs
 *.log
 npm-debug.log*
-
-# Test coverage
-coverage/
