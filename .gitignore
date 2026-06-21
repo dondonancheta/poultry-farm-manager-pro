@@ -1,6 +1,6 @@
 # Dependencies
-node_modules/
-vendor/
+client/node_modules/
+server/vendor/
 
 # Build outputs
 dist/
