@@ -1,5 +1,5 @@
 # PoultryFarm Pro — Laravel API
-# Build context: repo root (so we can COPY server/ and infrastructure/)
+# Build context: repo root
 
 FROM php:8.3-fpm-alpine
 
@@ -16,13 +16,17 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Composer install (layer cache)
-COPY server/composer.json server/composer.lock ./
+# Copy composer files first (layer cache)
+COPY server/composer.json ./composer.json
+COPY server/composer.lock ./composer.lock
+
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-# Copy app code
+# Copy full app
 COPY server/ .
-RUN composer run-script post-autoload-dump --no-interaction 2>/dev/null || true
+
+# Post-install
+RUN composer dump-autoload --optimize 2>/dev/null || true
 
 # Permissions
 RUN chown -R www-data:www-data /var/www/html \
