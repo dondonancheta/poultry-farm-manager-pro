@@ -165,3 +165,8 @@ export class MasterDataService extends ApiService {
   createSupplier(data: unknown):    Observable<unknown> { return this.post('master-data/suppliers', data); }
   updateSupplier(id: number, data: unknown): Observable<unknown> { return this.put(`master-data/suppliers/${id}`, data); }
 }
+
+// Re-export new dedicated service files
+export { SalesService } from './sales.service';
+export { HealthService as HealthServiceV2 } from './health.service';
+export { ReportService as ReportServiceV2 } from './report.service';
