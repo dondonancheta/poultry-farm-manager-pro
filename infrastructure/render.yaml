@@ -1,0 +1,107 @@
+# PoultryFarm Pro — Render.com Blueprint
+# IMPORTANT: Copy this file to repo ROOT before deploying:
+#   cp infrastructure/render.yaml ./render.yaml
+# Then: render.com → New → Blueprint → select repo → Apply
+
+services:
+
+  # ── 1. Angular Client (Static Site) ────────────────────────────────────────
+  - type: web
+    name: poultry-client
+    runtime: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist/poultry-farm-pro/browser
+    pullRequestPreviewsEnabled: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=4096
+      - key: NG_APP_API_URL
+        sync: false
+
+  # ── 2. Laravel API (Docker) ─────────────────────────────────────────────────
+  - type: web
+    name: poultry-api
+    runtime: docker
+    dockerfilePath: infrastructure/server/Dockerfile
+    dockerContext: .
+    plan: free
+    disk:
+      name: laravel-storage
+      mountPath: /var/www/html/storage
+      sizeGB: 1
+    envVars:
+      - key: APP_NAME
+        value: PoultryFarm Pro API
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        fromService:
+          type: web
+          name: poultry-api
+          property: host
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: poultry-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: poultry-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: poultry-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: poultry-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: poultry-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_TTL
+        value: "60"
+      - key: JWT_REFRESH_TTL
+        value: "20160"
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: poultry-client
+          property: host
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: CACHE_STORE
+        value: database
+      - key: SESSION_DRIVER
+        value: database
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+
+# ── 3. PostgreSQL Database ─────────────────────────────────────────────────────
+databases:
+  - name: poultry-db
+    databaseName: poultry_farm_pro
+    user: poultry_admin
+    plan: free

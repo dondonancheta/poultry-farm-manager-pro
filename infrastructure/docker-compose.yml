@@ -1,0 +1,71 @@
+# PoultryFarm Pro — Full local dev stack
+# Usage: cd infrastructure && docker compose up
+
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: poultry_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB:       poultry_farm_pro
+      POSTGRES_USER:     poultry_admin
+      POSTGRES_PASSWORD: poultry_secret_2024
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U poultry_admin -d poultry_farm_pro"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: infrastructure/server/Dockerfile
+    container_name: poultry_api
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./database/.env.docker
+    volumes:
+      - ../server:/var/www/html
+      - laravel_storage:/var/www/html/storage
+    networks:
+      - poultry_net
+
+  client:
+    image: node:22-alpine
+    container_name: poultry_client
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=4096
+    command: sh -c "npm install && npm run start -- --host 0.0.0.0"
+    volumes:
+      - ../client:/app
+      - client_modules:/app/node_modules
+    networks:
+      - poultry_net
+
+volumes:
+  pgdata:
+  laravel_storage:
+  client_modules:
+
+networks:
+  poultry_net:
+    driver: bridge

@@ -9,14 +9,17 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const http   = inject(HttpClient);
 
-  // Skip auth endpoints
   const isAuthRoute = req.url.includes('/auth/login')
     || req.url.includes('/auth/refresh')
     || req.url.includes('/auth/forgot-password')
     || req.url.includes('/auth/reset-password');
 
-  // Proactively refresh real JWT tokens approaching expiry (15-min threshold)
-  if (token && !token.startsWith('demo-token-') && !isAuthRoute) {
+  // Skip all HTTP calls when in demo mode (no apiUrl configured)
+  // The mock API handles data locally — no real HTTP needed for demo tokens
+  const isDemo = !environment.apiUrl?.trim() || token?.startsWith('demo-token-');
+
+  // Proactively refresh real JWT tokens approaching expiry
+  if (token && !isDemo && !isAuthRoute) {
     try {
       const payload   = JSON.parse(atob(token.split('.')[1]));
       const expiresIn = (payload.exp * 1000) - Date.now();
@@ -32,15 +35,14 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     } catch {}
   }
 
-  // Attach Authorization header for real tokens only
-  const freshToken = localStorage.getItem('pfp_token');
-  const authReq = freshToken && !freshToken.startsWith('demo-token-')
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${freshToken}` } })
+  // Attach Authorization header for real (non-demo) tokens
+  const authReq = token && !isDemo
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
     : req;
 
   return next(authReq).pipe(
     catchError((err: HttpErrorResponse) => {
-      if (err.status === 401 && !isAuthRoute) {
+      if (err.status === 401 && !isAuthRoute && !isDemo) {
         localStorage.removeItem('pfp_token');
         localStorage.removeItem('pfp_user');
         router.navigate(['/login']);
