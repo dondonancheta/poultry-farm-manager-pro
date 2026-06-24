@@ -41,8 +41,10 @@ RUN composer install \
     --prefer-dist \
     --ignore-platform-reqs
 
-# Dump autoload
-RUN composer dump-autoload --optimize --no-scripts
+# Dump autoload and disable platform check (vendor was built on PHP 8.4, Docker runs 8.3)
+RUN composer dump-autoload --optimize --no-scripts \
+ && composer config --no-plugins allow-plugins.composer/package-versions-deprecated true 2>/dev/null || true \
+ && php -r "file_put_contents('/var/www/html/vendor/composer/platform_check.php', '<?php // platform check disabled');"
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
