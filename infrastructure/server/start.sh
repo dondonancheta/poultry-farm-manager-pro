@@ -14,18 +14,27 @@ echo "[2/4] Running migrations..."
 php artisan migrate --force
 
 echo "[3/4] Checking seed status..."
-# Use a simpler check — query the DB directly
-USER_COUNT=$(php artisan tinker --no-interaction --execute="echo \App\Models\User::count();" 2>/dev/null | tr -d '\n\r ' | grep -o '[0-9]*' | tail -1)
+# Use php directly to query DB - more reliable than tinker
+USER_COUNT=$(php -r "
+require '/var/www/html/vendor/autoload.php';
+\$app = require '/var/www/html/bootstrap/app.php';
+\$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+try {
+    echo \Illuminate\Support\Facades\DB::table('users')->count();
+} catch (Exception \$e) {
+    echo '0';
+}
+" 2>/dev/null)
 
-echo "      Found $USER_COUNT existing users"
+echo "      User count: $USER_COUNT"
 
-if [ "$USER_COUNT" = "0" ] || [ -z "$USER_COUNT" ]; then
-  echo "      Seeding demo data..."
-  php artisan db:seed --force --class=Database\\Seeders\\DatabaseSeeder
-  echo "      ✓ Seeded"
+if [ -z "$USER_COUNT" ] || [ "$USER_COUNT" = "0" ]; then
+    echo "      Seeding demo data..."
+    php artisan db:seed --force
+    echo "      ✓ Seeded successfully"
 else
-  echo "      ✓ Skipping seed — data already exists"
+    echo "      ✓ Skipping — $USER_COUNT users already exist"
 fi
 
-echo "[4/4] Starting Nginx + PHP-FPM..."
+echo "[4/4] Starting services..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
