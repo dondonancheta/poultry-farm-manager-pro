@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     zip unzip git curl supervisor bash \
     freetype-dev libjpeg-turbo-dev libpng-dev
 
-# PHP extensions (including gd for phpspreadsheet)
+# PHP extensions
 RUN docker-php-ext-configure gd \
         --with-freetype \
         --with-jpeg \
@@ -29,11 +29,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy entire server folder
+# Copy full server folder (includes artisan, public/, storage/)
 COPY server/ .
 
-# Install PHP dependencies — ignore platform reqs since lock was generated on PHP 8.5
-# and Docker runs PHP 8.3
+# Install PHP dependencies
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
@@ -45,14 +44,10 @@ RUN composer install \
 # Dump autoload
 RUN composer dump-autoload --optimize --no-scripts
 
-# Create required directories then set permissions
-RUN mkdir -p storage/logs \
-             storage/framework/cache \
-             storage/framework/sessions \
-             storage/framework/views \
-             bootstrap/cache \
- && chown -R www-data:www-data /var/www/html \
- && chmod -R 755 storage bootstrap/cache
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+ && chmod -R 755 storage bootstrap/cache \
+ && chmod +x artisan
 
 # Infrastructure configs
 COPY infrastructure/server/nginx.conf       /etc/nginx/nginx.conf

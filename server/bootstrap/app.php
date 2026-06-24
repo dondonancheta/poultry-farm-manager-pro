@@ -6,6 +6,7 @@ use App\Http\Middleware\CheckOwnership;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,11 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ── Global API middleware ─────────────────────────────────────────
         $middleware->api(prepend: [
-            \Fruitcake\Cors\HandleCors::class,  // CORS (must be first)
-            ForceJsonResponse::class,            // Always return JSON
+            HandleCors::class,         // Laravel built-in CORS
+            ForceJsonResponse::class,  // Always return JSON
         ]);
 
-        // ── Named middleware aliases ─────────────────────────────────────
+        // ── Named middleware aliases ──────────────────────────────────────
         $middleware->alias([
             'auth.jwt'  => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
             'role'      => RoleMiddleware::class,
@@ -30,7 +31,6 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
-        // Return JSON for all /api/* errors
         $exceptions->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => 'Unauthenticated.'], 401);
