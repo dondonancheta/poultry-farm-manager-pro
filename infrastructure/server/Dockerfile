@@ -1,15 +1,20 @@
 # PoultryFarm Pro — Laravel API
-# Build context: repo root (set in render.yaml as dockerContext: .)
+# Build context: repo root
 
 FROM php:8.3-fpm-alpine
 
 # System packages
 RUN apk add --no-cache \
     nginx postgresql-dev libzip-dev \
-    zip unzip git curl supervisor bash
+    zip unzip git curl supervisor bash \
+    freetype-dev libjpeg-turbo-dev libpng-dev
 
-# PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql pgsql zip opcache pcntl bcmath
+# PHP extensions (including gd for phpspreadsheet)
+RUN docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+ && docker-php-ext-install \
+        pdo pdo_pgsql pgsql zip opcache pcntl bcmath gd
 
 # OPcache settings
 RUN { \
@@ -27,21 +32,26 @@ WORKDIR /var/www/html
 # Copy entire server folder
 COPY server/ .
 
-# Install PHP dependencies (no lock file required)
+# Install PHP dependencies — ignore platform reqs since lock was generated on PHP 8.5
+# and Docker runs PHP 8.3
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
     --no-scripts \
-    --prefer-dist
+    --prefer-dist \
+    --ignore-platform-reqs
 
-# Dump autoload after scripts
-RUN composer dump-autoload --optimize
+# Dump autoload
+RUN composer dump-autoload --optimize --no-scripts
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
  && chmod -R 755 storage bootstrap/cache \
- && mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views
+ && mkdir -p storage/logs \
+             storage/framework/cache \
+             storage/framework/sessions \
+             storage/framework/views
 
 # Infrastructure configs
 COPY infrastructure/server/nginx.conf       /etc/nginx/nginx.conf
