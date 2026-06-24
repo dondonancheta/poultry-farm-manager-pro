@@ -276,6 +276,77 @@ return new class extends Migration {
             $table->string('group')->default('general');
             $table->timestamps();
         });
+
+        // ── Notifications ─────────────────────────────────────────────────────
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->text('message');
+            $table->string('type')->default('info');
+            $table->string('category')->nullable();
+            $table->json('for_roles')->default('[]');
+            $table->string('link')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('notification_reads', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('notification_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
+            $table->unique(['notification_id', 'user_id']);
+        });
+
+        // ── Sale Items ────────────────────────────────────────────────────────
+        Schema::create('sale_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('sale_id')->constrained()->cascadeOnDelete();
+            $table->string('egg_size');
+            $table->integer('quantity');
+            $table->decimal('unit_price', 10, 2);
+            $table->decimal('subtotal', 12, 2);
+            $table->timestamps();
+        });
+
+        // ── Password Reset Tokens ─────────────────────────────────────────────
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+
+        // ── Cache & Sessions (for database driver) ────────────────────────────
+        Schema::create('cache', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->mediumText('value');
+            $table->integer('expiration');
+        });
+
+        Schema::create('cache_locks', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->string('owner');
+            $table->integer('expiration');
+        });
+
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
+
+        Schema::create('jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('queue')->index();
+            $table->longText('payload');
+            $table->unsignedTinyInteger('attempts');
+            $table->unsignedInteger('reserved_at')->nullable();
+            $table->unsignedInteger('available_at');
+            $table->unsignedInteger('created_at');
+        });
     }
 
     public function down(): void
