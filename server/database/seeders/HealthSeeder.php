@@ -13,7 +13,7 @@ class HealthSeeder extends Seeder
         $today = Carbon::today();
 
         // ── Medicines ──────────────────────────────────────────────────────
-        DB::table('medicines')->insert([
+        DB::table('medicines')->insertOrIgnore([
             ['name' => 'Newcastle Vaccine (La Sota)', 'type' => 'Vaccine',    'active_ingredient' => 'Live La Sota',       'withdrawal_days' => 0,  'storage_temp' => '2-8°C',   'supplier_id' => 4, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Gumboro Vaccine (IBD)',       'type' => 'Vaccine',    'active_ingredient' => 'Live IBD virus',     'withdrawal_days' => 0,  'storage_temp' => '2-8°C',   'supplier_id' => 4, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => "Marek's Disease Vaccine",     'type' => 'Vaccine',    'active_ingredient' => 'HVT FC-126',         'withdrawal_days' => 0,  'storage_temp' => '-196°C',  'supplier_id' => 4, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
@@ -24,7 +24,7 @@ class HealthSeeder extends Seeder
         ]);
 
         // ── Medicine stocks ────────────────────────────────────────────────
-        DB::table('medicine_stocks')->insert([
+        DB::table('medicine_stocks')->insertOrIgnore([
             ['medicine_id' => 1, 'batch_number' => 'NC-2024-001', 'quantity' => 200,  'unit' => 'doses', 'expiry_date' => $today->copy()->addMonths(8)->format('Y-m-d'),  'received_date' => $today->copy()->subDays(30)->format('Y-m-d'), 'unit_cost' => 45.00,  'created_at' => now(), 'updated_at' => now()],
             ['medicine_id' => 2, 'batch_number' => 'GU-2024-001', 'quantity' => 50,   'unit' => 'doses', 'expiry_date' => $today->copy()->addMonths(6)->format('Y-m-d'),  'received_date' => $today->copy()->subDays(20)->format('Y-m-d'), 'unit_cost' => 38.00,  'created_at' => now(), 'updated_at' => now()],
             ['medicine_id' => 3, 'batch_number' => 'MD-2024-001', 'quantity' => 150,  'unit' => 'doses', 'expiry_date' => $today->copy()->addMonths(12)->format('Y-m-d'), 'received_date' => $today->copy()->subDays(10)->format('Y-m-d'), 'unit_cost' => 120.00, 'created_at' => now(), 'updated_at' => now()],
@@ -34,7 +34,7 @@ class HealthSeeder extends Seeder
         ]);
 
         // ── Treatments ────────────────────────────────────────────────────
-        DB::table('treatments')->insert([
+        DB::table('treatments')->insertOrIgnore([
             [
                 'flock_batch_id'  => 5, // Alpha-2 — high mortality
                 'medicine_id'     => 4, // Tetracycline
@@ -68,7 +68,7 @@ class HealthSeeder extends Seeder
         ]);
 
         // ── Vaccinations ──────────────────────────────────────────────────
-        DB::table('vaccinations')->insert([
+        DB::table('vaccinations')->insertOrIgnore([
             // Batch 1 vaccinations
             ['flock_batch_id' => 1, 'medicine_id' => 1, 'vaccine_name' => 'Newcastle Stage 1', 'scheduled_date' => $today->copy()->subDays(28)->format('Y-m-d'), 'status' => 'completed', 'completed_date' => $today->copy()->subDays(28)->format('Y-m-d'), 'administered_by' => 'Maria Santos', 'batch_no' => 'NC-2024-001', 'notes' => null, 'created_at' => now()->subDays(28), 'updated_at' => now()->subDays(28)],
             ['flock_batch_id' => 1, 'medicine_id' => 2, 'vaccine_name' => 'Gumboro Stage 1',   'scheduled_date' => $today->copy()->subDays(21)->format('Y-m-d'), 'status' => 'completed', 'completed_date' => $today->copy()->subDays(21)->format('Y-m-d'), 'administered_by' => 'Maria Santos', 'batch_no' => 'GU-2024-001', 'notes' => null, 'created_at' => now()->subDays(21), 'updated_at' => now()->subDays(21)],

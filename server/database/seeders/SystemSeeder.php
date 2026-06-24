@@ -10,7 +10,7 @@ class SystemSeeder extends Seeder
     public function run(): void
     {
         // ── System Settings ────────────────────────────────────────────────
-        DB::table('system_settings')->insert([
+        DB::table('system_settings')->insertOrIgnore([
             // Farm info
             ['key' => 'farm_name',            'value' => 'GreenValley Poultry Farm',    'group' => 'farm',    'created_at' => now(), 'updated_at' => now()],
             ['key' => 'farm_address',         'value' => 'Barangay Maligaya, Lipa City, Batangas 4217', 'group' => 'farm', 'created_at' => now(), 'updated_at' => now()],

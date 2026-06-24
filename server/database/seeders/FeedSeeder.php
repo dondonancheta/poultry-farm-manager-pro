@@ -13,7 +13,7 @@ class FeedSeeder extends Seeder
         $today = Carbon::today();
 
         // ── Feed stocks (current inventory) ───────────────────────────────
-        DB::table('feed_stocks')->insert([
+        DB::table('feed_stocks')->insertOrIgnore([
             [
                 'feed_type_id'  => 1, // Starter Mix A
                 'supplier_id'   => 1, // AgriFeeds Corp

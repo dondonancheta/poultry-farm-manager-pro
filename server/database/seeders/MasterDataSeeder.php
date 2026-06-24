@@ -10,7 +10,7 @@ class MasterDataSeeder extends Seeder
     public function run(): void
     {
         // ── Buildings ──────────────────────────────────────────────────────
-        DB::table('buildings')->insert([
+        DB::table('buildings')->insertOrIgnore([
             ['name' => 'Alpha-1', 'type' => 'layer',   'capacity' => 15000, 'status' => 'active',   'supervisor_id' => 4, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Alpha-2', 'type' => 'broiler', 'capacity' => 15000, 'status' => 'active',   'supervisor_id' => 4, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Beta-1',  'type' => 'layer',   'capacity' => 12000, 'status' => 'inactive', 'supervisor_id' => 5, 'created_at' => now(), 'updated_at' => now()],
@@ -20,7 +20,7 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // ── Breeds ─────────────────────────────────────────────────────────
-        DB::table('breeds')->insert([
+        DB::table('breeds')->insertOrIgnore([
             ['name' => 'Cobb 500',     'type' => 'broiler', 'origin' => 'USA',      'avg_fcr' => 1.35, 'peak_prod_age' => 35, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Ross 308',     'type' => 'broiler', 'origin' => 'Scotland', 'avg_fcr' => 1.38, 'peak_prod_age' => 33, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Hubbard',      'type' => 'dual',    'origin' => 'France',   'avg_fcr' => 1.45, 'peak_prod_age' => 40, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
@@ -29,7 +29,7 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // ── Feed Types ─────────────────────────────────────────────────────
-        DB::table('feed_types')->insert([
+        DB::table('feed_types')->insertOrIgnore([
             ['name' => 'Starter Mix (Type A)',    'category' => 'starter',  'age_from' => 0,  'age_to' => 14, 'price_per_kg' => 28.50, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Starter Mix (Type B)',    'category' => 'starter',  'age_from' => 0,  'age_to' => 14, 'price_per_kg' => 26.00, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Grower Pellets (Type A)', 'category' => 'grower',   'age_from' => 15, 'age_to' => 28, 'price_per_kg' => 24.00, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
@@ -39,7 +39,7 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // ── Suppliers ──────────────────────────────────────────────────────
-        DB::table('suppliers')->insert([
+        DB::table('suppliers')->insertOrIgnore([
             ['name' => 'AgriFeeds Corp',       'category' => 'Feed',     'contact' => 'Juan Reyes',     'phone' => '09171234567', 'email' => 'juan@agrifeeds.ph',   'address' => 'Malolos, Bulacan',    'rating' => 5, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'PrimeFeed Ltd',        'category' => 'Feed',     'contact' => 'Maria Cruz',     'phone' => '09281234567', 'email' => 'maria@primefeed.ph',   'address' => 'San Fernando, Pampanga','rating' => 4, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'NutriPro Supplies',    'category' => 'Feed',     'contact' => 'Pedro Santos',   'phone' => '09391234567', 'email' => 'pedro@nutripro.ph',   'address' => 'Bacoor, Cavite',      'rating' => 4, 'active' => true,  'created_at' => now(), 'updated_at' => now()],

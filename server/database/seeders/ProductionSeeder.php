@@ -73,7 +73,7 @@ class ProductionSeeder extends Seeder
         DB::table('egg_collections')->insert($collections);
 
         // ── Mortality logs ────────────────────────────────────────────────
-        DB::table('mortality_logs')->insert([
+        DB::table('mortality_logs')->insertOrIgnore([
             [
                 'flock_batch_id'  => 1,
                 'building_id'     => 1,

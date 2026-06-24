@@ -13,7 +13,7 @@ class SalesSeeder extends Seeder
         $today = Carbon::today();
 
         // ── Customers ──────────────────────────────────────────────────────
-        DB::table('customers')->insert([
+        DB::table('customers')->insertOrIgnore([
             ['name' => 'Metro Fresh Market',      'type' => 'wholesale',  'contact' => 'Ana Lim',      'phone' => '09171111111', 'email' => 'ana@metro.ph',      'credit_limit' => 50000.00, 'balance' => 12000.00, 'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Sunrise Supermarket',     'type' => 'wholesale',  'contact' => 'Ben Cruz',     'phone' => '09282222222', 'email' => 'ben@sunrise.ph',    'credit_limit' => 30000.00, 'balance' => 5000.00,  'active' => true,  'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Casa Manila Restaurant',  'type' => 'restaurant', 'contact' => 'Chef Reyes',   'phone' => '09393333333', 'email' => 'chef@casa.ph',      'credit_limit' => 20000.00, 'balance' => 8000.00,  'active' => true,  'created_at' => now(), 'updated_at' => now()],
@@ -22,7 +22,7 @@ class SalesSeeder extends Seeder
         ]);
 
         // ── Sales ──────────────────────────────────────────────────────────
-        DB::table('sales')->insert([
+        DB::table('sales')->insertOrIgnore([
             [
                 'invoice_no'        => 'INV-1038',
                 'customer_id'       => 1, // Metro Fresh
@@ -91,7 +91,7 @@ class SalesSeeder extends Seeder
         ]);
 
         // ── Sale line items ────────────────────────────────────────────────
-        DB::table('sale_items')->insert([
+        DB::table('sale_items')->insertOrIgnore([
             // INV-1038
             ['sale_id' => 1, 'egg_size' => 'large',  'quantity' => 10000, 'unit_price' => 2.50, 'subtotal' => 25000.00, 'created_at' => now(), 'updated_at' => now()],
             // INV-1039

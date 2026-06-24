@@ -12,7 +12,7 @@ class FlockSeeder extends Seeder
     {
         $today = Carbon::today();
 
-        DB::table('flock_batches')->insert([
+        DB::table('flock_batches')->insertOrIgnore([
             [
                 'batch_code'            => 'B-2024-001',
                 'breed_id'              => 1, // Cobb 500
