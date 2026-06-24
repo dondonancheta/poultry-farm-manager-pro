@@ -198,8 +198,11 @@ return new class extends Migration {
             $table->foreignId('medicine_id')->constrained()->restrictOnDelete();
             $table->foreignId('administered_by')->constrained('users')->restrictOnDelete();
             $table->decimal('dosage_ml', 8, 2)->nullable();
+            $table->unsignedInteger('duration_days')->nullable();
+            $table->unsignedInteger('birds_treated')->nullable();
             $table->timestamp('administered_at');
             $table->unsignedInteger('withdrawal_days')->default(0);
+            $table->date('withdrawal_end')->nullable();
             $table->string('symptoms')->nullable();
             $table->string('diagnosis')->nullable();
             $table->text('notes')->nullable();
