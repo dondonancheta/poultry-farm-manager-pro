@@ -1,10 +1,7 @@
 // ── Production ────────────────────────────────────────────────────────────────
-// Set NG_APP_API_URL in Vercel environment variables when you deploy Laravel
-// Until then, the app runs in demo mode with hardcoded data
+// Update API_URL below with your actual Render API URL
 export const environment = {
   production: true,
-  // Replace with your Laravel API URL once deployed:
-  // e.g. https://api.greenvalley.farm/api
-  apiUrl: 'https://poultry-api.onrender.com/api',
-  useMockFallback: true,
+  apiUrl: 'https://poultry-api.onrender.com/api',  // ← UPDATE THIS
+  useMockFallback: false,
 };
