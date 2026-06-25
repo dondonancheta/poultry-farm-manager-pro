@@ -5,6 +5,6 @@ export const environment = {
   production: true,
   // Replace with your Laravel API URL once deployed:
   // e.g. https://api.greenvalley.farm/api
-  apiUrl: (window as any).__env?.API_URL ?? '',
+  apiUrl: 'https://poultry-api.onrender.com/api',
   useMockFallback: true,
 };
