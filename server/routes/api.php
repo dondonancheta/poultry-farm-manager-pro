@@ -1,3 +1,6 @@
+// ── Health check (public) ──────────────────────────────────────────────────
+Route::get('health', fn() => response()->json(['status' => 'ok', 'time' => now()]));
+
 <?php
 
 use Illuminate\Support\Facades\Route;
