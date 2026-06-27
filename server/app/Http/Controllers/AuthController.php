@@ -2,96 +2,123 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Password;
+use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
-    /**
-     * POST /api/auth/login
-     * Returns JWT token + user object with role/permissions.
-     */
     public function login(Request $request): JsonResponse
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email'    => 'required|email',
             'password' => 'required|string',
         ]);
 
-        if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json([
-                'message' => 'Invalid credentials. Please check your email and password.',
-            ], 401);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials.'], 401);
         }
 
-        return $this->tokenResponse($token);
+        if (isset($user->status) && $user->status === 'inactive') {
+            return response()->json(['message' => 'Account is inactive.'], 403);
+        }
+
+        $token = JWTAuth::fromUser($user);
+
+        // Update last login
+        $user->update(['last_login_at' => now()]);
+
+        return $this->tokenResponse($token, $user);
     }
 
-    /**
-     * POST /api/auth/logout
-     */
     public function logout(): JsonResponse
     {
-        auth('api')->logout();
-        return response()->json(['message' => 'Logged out successfully.']);
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+        } catch (\Exception $e) {
+            // Token already invalid
+        }
+
+        return response()->json(['message' => 'Successfully logged out']);
     }
 
-    /**
-     * GET /api/auth/me
-     * Returns the authenticated user with role and permissions.
-     */
-    public function me(): JsonResponse
-    {
-        $user = auth('api')->user()->load('roles', 'permissions');
-
-        return response()->json([
-            'id'          => $user->id,
-            'name'        => $user->name,
-            'email'       => $user->email,
-            'role'        => $user->getRoleNames()->first(),
-            'permissions' => $user->getAllPermissions()->pluck('name'),
-            'building'    => $user->building,
-            'phone'       => $user->phone,
-            'avatar'      => $user->avatar,
-            'created_at'  => $user->created_at,
-        ]);
-    }
-
-    /**
-     * POST /api/auth/refresh
-     */
     public function refresh(): JsonResponse
     {
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());
-            return $this->tokenResponse($token);
-        } catch (JWTException $e) {
-            return response()->json(['message' => 'Token expired or invalid.'], 401);
+            $user  = JWTAuth::setToken($token)->toUser();
+            return $this->tokenResponse($token, $user);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Token refresh failed.'], 401);
         }
     }
 
-    // ── Helper ────────────────────────────────────────────────────────────────
-
-    private function tokenResponse(string $token): JsonResponse
+    public function me(): JsonResponse
     {
         $user = auth('api')->user();
 
         return response()->json([
+            'id'            => $user->id,
+            'name'          => $user->name,
+            'email'         => $user->email,
+            'role'          => $user->role,
+            'status'        => $user->status ?? 'active',
+            'building'      => $user->building ?? null,
+            'phone'         => $user->phone ?? null,
+            'last_login_at' => $user->last_login_at,
+        ]);
+    }
+
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        return response()->json(['message' => __($status)]);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill(['password' => Hash::make($password)])->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json(['message' => 'Password reset successfully.']);
+        }
+
+        return response()->json(['message' => __($status)], 400);
+    }
+
+    private function tokenResponse(string $token, User $user): JsonResponse
+    {
+        return response()->json([
             'token'      => $token,
-            'token_type' => 'Bearer',
-            'expires_in' => config('jwt.ttl') * 60,
-            'user' => [
+            'token_type' => 'bearer',
+            'expires_in' => config('jwt.ttl', 60) * 60,
+            'user'       => [
                 'id'       => $user->id,
                 'name'     => $user->name,
                 'email'    => $user->email,
-                'role'     => $user->getRoleNames()->first(),
-                'building' => $user->building,
-                'phone'    => $user->phone,
+                'role'     => $user->role,
+                'status'   => $user->status ?? 'active',
+                'building' => $user->building ?? null,
+                'phone'    => $user->phone ?? null,
             ],
         ]);
     }
