@@ -44,12 +44,12 @@ git push
 
 ### 3. Set API URL on client (after API deploys)
 1. Dashboard → **poultry-client** → **Environment**
-2. Add: `NG_APP_API_URL` = `https://poultry-api.onrender.com/api`
+2. Add: `NG_APP_API_URL` = `https://poultry-api-fww1.onrender.com/api`
 3. Save → auto-redeploys
 
 ### Test
 ```bash
-curl https://poultry-api.onrender.com/api/auth/login \
+curl https://poultry-api-fww1.onrender.com/api/auth/login \
   -X POST -H "Content-Type: application/json" \
   -d '{"email":"admin1@admin.com","password":"admin1"}'
 ```
@@ -103,7 +103,7 @@ docker compose exec api php artisan migrate:fresh --seed
 ### Angular Client
 | Key | Value |
 |-----|-------|
-| `NG_APP_API_URL` | `https://poultry-api.onrender.com/api` |
+| `NG_APP_API_URL` | `https://poultry-api-fww1.onrender.com/api` |
 | `NODE_OPTIONS` | `--max-old-space-size=4096` |
 
 ---
@@ -111,7 +111,7 @@ docker compose exec api php artisan migrate:fresh --seed
 ## Keep Free Tier Awake
 
 Render free tier sleeps after 15min. Use [UptimeRobot](https://uptimerobot.com) (free):
-- Monitor URL: `https://poultry-api.onrender.com/api/health`
+- Monitor URL: `https://poultry-api-fww1.onrender.com/api/health`
 - Interval: every 5 minutes
 
 Add health route to `server/routes/api.php`:
