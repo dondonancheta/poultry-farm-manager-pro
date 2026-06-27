@@ -62,7 +62,7 @@ const ROLE_CONFIG: Record<Role, { label: string; color: string; icon: string }> 
   worker:     { label: 'Farm Worker',    color: 'bg-primary-fixed text-on-primary-fixed-variant',          icon: 'agriculture' },
   supervisor: { label: 'Supervisor',     color: 'bg-secondary-fixed text-on-secondary-fixed-variant',      icon: 'manage_accounts' },
   manager:    { label: 'Farm Manager',   color: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',        icon: 'leaderboard' },
-  admin:      { label: 'Administrator',  color: 'bg-primary-container text-on-primary-container',          icon: 'admin_panel_settings' },
+  admin:      { label: 'Administrator',  color: 'bg-red-700 text-white',                                   icon: 'admin_panel_settings' },
 };
 
 @Component({
@@ -97,9 +97,10 @@ const ROLE_CONFIG: Record<Role, { label: string; color: string; icon: string }> 
             [routerLink]="item.route"
             routerLinkActive="bg-primary font-bold"
             [routerLinkActiveOptions]="{ exact: true }"
-            class="flex items-center gap-md px-md py-sm text-label-md
-                   hover:bg-surface-container-high rounded-lg transition-all"
+            class="flex items-center gap-md px-md py-sm text-label-md rounded-lg transition-all"
             #rla="routerLinkActive"
+            [class.hover:bg-surface-container-high]="!rla.isActive"
+            [class.cursor-default]="rla.isActive"
             [class.text-on-primary]="rla.isActive"
             [class.text-on-surface-variant]="!rla.isActive"
           >
