@@ -82,7 +82,7 @@ export class AuthService {
     localStorage.removeItem('pfp_user');
     this._token.set(null);
     this._user.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   setToken(token: string): void {

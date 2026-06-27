@@ -135,7 +135,7 @@ interface TodayLog {
         <div class="flex items-center gap-sm mb-md">
           <span class="material-symbols-outlined text-white text-[22px]"
                 style="font-variation-settings: 'FILL' 1">egg</span>
-          <h3 class="font-bold text-on-primary-container" style="font-size:16px">
+          <h3 class="font-bold text-white" style="font-size:16px">
             Quick Egg Collection Entry
           </h3>
         </div>
@@ -244,10 +244,29 @@ export class WorkerHomeComponent implements OnInit {
     { icon: 'emergency',     label: 'Record Mortality',       route: '/mortality/log',    color: 'bg-surface-container-highest', textColor: 'text-on-surface',       count: '0',  countLabel: 'logged today' },
   ];
 
-  todayLogs: TodayLog[] = [
-    { icon: 'egg',   label: 'Egg Collection — Alpha-1',  value: '1,240', unit: 'eggs',  time: '06:15 AM', iconColor: 'bg-primary-fixed text-on-primary-fixed-variant' },
-    { icon: 'grass', label: 'Feed Issued — Alpha-1',     value: '450',   unit: 'kg',    time: '06:30 AM', iconColor: 'bg-secondary-fixed text-on-secondary-fixed-variant' },
-  ];
+  todayLogs: TodayLog[] = [];
+
+  ngOnInit(): void {
+    this.loadTodayLogs();
+  }
+
+  loadTodayLogs(): void {
+    // Load today's egg collections from API
+    this.eggSvc.getCollections({ date: new Date().toISOString().split('T')[0] })
+      .subscribe(res => {
+        const collections = res?.data ?? [];
+        this.todayLogs = collections.map((ec: any) => ({
+          icon: 'egg',
+          label: `Egg Collection — ${ec.building?.name ?? ec.building_id}`,
+          value: (ec.total_collected ?? 0).toLocaleString(),
+          unit: 'eggs',
+          time: ec.collection_time
+            ? new Date(`2000-01-01T${ec.collection_time}`).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })
+            : '—',
+          iconColor: 'bg-primary-fixed text-on-primary-fixed-variant',
+        }));
+      });
+  }
 
   submitEggEntry(): void {
     if (!this.eggForm.total) return;
@@ -263,5 +282,6 @@ export class WorkerHomeComponent implements OnInit {
     this.pendingCount = Math.max(0, this.pendingCount - 1);
     this.eggForm = { building: 'Alpha-1', total: null, cracked: null, spoiled: null };
     setTimeout(() => this.eggSaved.set(false), 3000);
+    this.loadTodayLogs();
   }
 }
