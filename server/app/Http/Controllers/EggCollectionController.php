@@ -106,7 +106,7 @@ class EggCollectionController extends Controller
 
         $totals = EggCollection::whereBetween('collection_date', [$from, $to])
             ->when($request->building_id, fn($q) => $q->where('building_id', $request->building_id))
-            ->selectRaw('
+            ->selectRaw("
                 COUNT(*)            as entries,
                 SUM(total_collected) as total_collected,
                 SUM(good_eggs)       as good_eggs,
@@ -119,7 +119,7 @@ class EggCollectionController extends Controller
                 SUM((sizes->>'large')::int)       as large,
                 SUM((sizes->>'extra_large')::int) as extra_large,
                 SUM((sizes->>'jumbo')::int)       as jumbo
-            ')
+            ")
             ->first();
 
         $totalCollected = $totals->total_collected ?? 0;
@@ -148,13 +148,13 @@ class EggCollectionController extends Controller
      */
     public function inventory(): JsonResponse
     {
-        $collected = EggCollection::selectRaw('
+        $collected = EggCollection::selectRaw("
             SUM((sizes->>'small')::int)       as small,
             SUM((sizes->>'medium')::int)      as medium,
             SUM((sizes->>'large')::int)       as large,
             SUM((sizes->>'extra_large')::int) as extra_large,
             SUM((sizes->>'jumbo')::int)       as jumbo
-        ')->first();
+        ")->first();
 
         // TODO: subtract sold quantities when Sales module is implemented
         return response()->json([
