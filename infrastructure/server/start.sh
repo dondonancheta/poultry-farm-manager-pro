@@ -5,12 +5,21 @@ echo "======================================"
 echo "  PoultryFarm Pro API — Starting Up"
 echo "======================================"
 
+# Debug: show actual file structure
+echo "=== Checking file structure ==="
+ls -la /var/www/html/
+echo "--- public/ ---"
+ls -la /var/www/html/public/ 2>/dev/null || echo "ERROR: public/ not found!"
+echo "--- artisan ---"
+ls -la /var/www/html/artisan 2>/dev/null || echo "ERROR: artisan not found!"
+echo "--- PHP-FPM listen ---"
+php-fpm -i 2>/dev/null | grep listen || true
+
 echo "[1/4] Clearing and rebuilding cache..."
 php artisan cache:clear 2>/dev/null || true
 php artisan config:clear 2>/dev/null || true
 php artisan route:clear 2>/dev/null || true
 php artisan view:clear 2>/dev/null || true
-
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

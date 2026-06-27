@@ -1,6 +1,3 @@
-# PoultryFarm Pro — Laravel API
-# Build context: repo root
-
 FROM php:8.3-fpm-alpine
 
 RUN apk add --no-cache \
@@ -18,22 +15,28 @@ RUN { \
     echo "opcache.validate_timestamps=0"; \
 } >> /usr/local/etc/php/conf.d/opcache.ini
 
+# Force PHP-FPM to listen on TCP 9000
+RUN echo '[www]' > /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'user = www-data' >> /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'group = www-data' >> /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'listen = 127.0.0.1:9000' >> /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'pm = dynamic' >> /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'pm.max_children = 5' >> /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'pm.start_servers = 2' >> /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'pm.min_spare_servers = 1' >> /usr/local/etc/php-fpm.d/www.conf \
+ && echo 'pm.max_spare_servers = 3' >> /usr/local/etc/php-fpm.d/www.conf
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy server folder
 COPY server/ .
 
-# Verify structure
-RUN echo "=== Directory structure ===" \
- && ls -la /var/www/html/ \
- && echo "=== public/ ===" \
- && ls -la /var/www/html/public/ \
- && echo "=== artisan ===" \
- && ls -la /var/www/html/artisan
+# Verify public/index.php exists
+RUN test -f /var/www/html/public/index.php \
+    && echo "✓ public/index.php found" \
+    || (echo "✗ public/index.php MISSING!" && exit 1)
 
-# Install dependencies
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
