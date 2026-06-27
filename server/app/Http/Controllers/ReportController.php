@@ -102,7 +102,6 @@ class ReportController extends Controller
                 'dateTo'   => $job['date_to'],
                 'generated'=> now()->format('M d, Y H:i'),
             ]);
-
             $filename = Str::slug($title) . '_' . now()->format('Ymd') . '.pdf';
             return $pdf->download($filename);
         }

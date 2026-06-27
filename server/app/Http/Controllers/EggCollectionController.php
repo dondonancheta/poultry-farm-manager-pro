@@ -34,7 +34,6 @@ class EggCollectionController extends Controller
             'building_id'      => 'required|exists:buildings,id',
             'collection_date'  => 'required|date',
             'collection_time'  => 'required|string',
-            'collector_id'     => 'required|exists:users,id',
             'sizes'            => 'required|array',
             'sizes.small'      => 'integer|min:0',
             'sizes.medium'     => 'integer|min:0',
@@ -54,6 +53,7 @@ class EggCollectionController extends Controller
                         + ($data['spoiled'] ?? 0) + ($data['rejected'] ?? 0);
         $data['total_collected'] = $totalSized;
         $data['good_eggs']       = max(0, $totalSized - $totalDefects);
+        $data['collector_id']    = $request->user()->id;
 
         $collection = EggCollection::create($data);
 
@@ -114,11 +114,11 @@ class EggCollectionController extends Controller
                 SUM(dirty)           as dirty,
                 SUM(spoiled)         as spoiled,
                 SUM(rejected)        as rejected,
-                SUM(sizes->>"$.small")       as small,
-                SUM(sizes->>"$.medium")      as medium,
-                SUM(sizes->>"$.large")       as large,
-                SUM(sizes->>"$.extra_large") as extra_large,
-                SUM(sizes->>"$.jumbo")       as jumbo
+                SUM((sizes->>'small')::int)       as small,
+                SUM((sizes->>'medium')::int)      as medium,
+                SUM((sizes->>'large')::int)       as large,
+                SUM((sizes->>'extra_large')::int) as extra_large,
+                SUM((sizes->>'jumbo')::int)       as jumbo
             ')
             ->first();
 
@@ -149,11 +149,11 @@ class EggCollectionController extends Controller
     public function inventory(): JsonResponse
     {
         $collected = EggCollection::selectRaw('
-            SUM(sizes->>"$.small")       as small,
-            SUM(sizes->>"$.medium")      as medium,
-            SUM(sizes->>"$.large")       as large,
-            SUM(sizes->>"$.extra_large") as extra_large,
-            SUM(sizes->>"$.jumbo")       as jumbo
+            SUM((sizes->>'small')::int)       as small,
+            SUM((sizes->>'medium')::int)      as medium,
+            SUM((sizes->>'large')::int)       as large,
+            SUM((sizes->>'extra_large')::int) as extra_large,
+            SUM((sizes->>'jumbo')::int)       as jumbo
         ')->first();
 
         // TODO: subtract sold quantities when Sales module is implemented
@@ -165,5 +165,34 @@ class EggCollectionController extends Controller
             'jumbo'       => (int) ($collected->jumbo ?? 0),
             'updated_at'  => now()->toIso8601String(),
         ]);
+    }
+
+    public function verify(Request $request, int $id): JsonResponse
+    {
+        \Illuminate\Support\Facades\DB::table('egg_collections')
+            ->where('id', $id)
+            ->update([
+                'verified_status' => 'verified',
+                'verified_by'     => $request->user()->id,
+                'verified_at'     => now(),
+                'updated_at'      => now(),
+            ]);
+
+        return response()->json(['message' => 'Collection verified.']);
+    }
+
+    public function flag(Request $request, int $id): JsonResponse
+    {
+        $data = $request->validate(['flag_reason' => 'required|string']);
+
+        \Illuminate\Support\Facades\DB::table('egg_collections')
+            ->where('id', $id)
+            ->update([
+                'verified_status' => 'flagged',
+                'flag_reason'     => $data['flag_reason'],
+                'updated_at'      => now(),
+            ]);
+
+        return response()->json(['message' => 'Collection flagged.']);
     }
 }
