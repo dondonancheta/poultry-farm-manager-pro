@@ -1,10 +1,13 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MedicineStock extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'medicine_id','batch_number','quantity',
         'unit','expiry_date','received_date','unit_cost',

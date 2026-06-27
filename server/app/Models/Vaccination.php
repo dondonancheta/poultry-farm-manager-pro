@@ -1,10 +1,13 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Vaccination extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'flock_batch_id','vaccine_name','scheduled_date',
         'completed_date','status','administered_by','batch_no','notes',

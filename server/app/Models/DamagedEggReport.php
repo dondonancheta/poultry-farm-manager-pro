@@ -1,10 +1,13 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DamagedEggReport extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'flock_batch_id','building_id','reported_by',
         'date','quantity','cause','notes',
