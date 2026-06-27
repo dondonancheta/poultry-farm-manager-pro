@@ -111,7 +111,7 @@ class AnalyticsController extends Controller
 
         return response()->json([
             'weekly'        => $weekly,
-            'total_deaths'  => $weekly->sum('total'),
+            'total_deaths'  => $weekly->sum(DB::raw('COALESCE(total, total_amount, 0)')),
         ]);
     }
 
@@ -166,7 +166,7 @@ class AnalyticsController extends Controller
         $revenue = DB::table('sales')
             ->whereBetween('sale_date', [$from, $to])
             ->whereIn('status', ['paid', 'pending'])
-            ->sum('total');
+            ->sum(DB::raw('COALESCE(total, total_amount, 0)'));
 
         // Feed costs from issuances
         $feedCost = DB::table('feed_issuances as fi')

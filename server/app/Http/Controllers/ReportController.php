@@ -224,7 +224,7 @@ class ReportController extends Controller
 
     private function profitabilityData(string $from, string $to): array
     {
-        $revenue  = DB::table('sales')->whereBetween('sale_date', [$from, $to])->sum('total');
+        $revenue  = DB::table('sales')->whereBetween('sale_date', [$from, $to])->sum(DB::raw('COALESCE(total, total_amount, 0)'));
         $feedCost = DB::table('feed_issuances as fi')->join('feed_stocks as fs', 'fs.id', '=', 'fi.feed_stock_id')
             ->whereBetween('fi.issued_at', [$from, $to])->sum(DB::raw('fi.quantity_kg * fs.price_per_kg'));
         $grossProfit = $revenue - $feedCost;

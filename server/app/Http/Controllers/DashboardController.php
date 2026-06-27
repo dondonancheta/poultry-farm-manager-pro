@@ -27,8 +27,8 @@ class DashboardController extends Controller
             ->whereDate('scheduled_date', $today)
             ->where('status', 'scheduled')->count();
 
-        $todayRevenue = DB::table('sales')->whereDate('sale_date', $today)->sum('total');
-        $monthRevenue = DB::table('sales')->whereBetween('sale_date', [$monthStart, $today])->sum('total');
+        $todayRevenue = DB::table('sales')->whereDate('sale_date', $today)->sum(DB::raw('COALESCE(total, total_amount, 0)'));
+        $monthRevenue = DB::table('sales')->whereBetween('sale_date', [$monthStart, $today])->sum(DB::raw('COALESCE(total, total_amount, 0)'));
 
         $feedCosts = DB::table('feed_issuances as fi')
             ->join('feed_stocks', 'feed_issuances.feed_stock_id', '=', 'feed_stocks.id')
