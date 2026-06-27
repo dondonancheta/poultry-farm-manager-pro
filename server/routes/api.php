@@ -42,10 +42,16 @@ Route::middleware('auth.jwt')->group(function () {
     Route::get('dashboard/kpis',     [DashboardController::class, 'kpis']);
     Route::get('dashboard/activity', [DashboardController::class, 'activity']);
 
+    // Flock batches — all roles can view, supervisor+ can manage
     Route::middleware('role:admin,manager,supervisor')->group(function () {
         Route::get('flock-batches/{id}/performance', [FlockBatchController::class, 'performance']);
-        Route::apiResource('flock-batches', FlockBatchController::class);
+        Route::post('flock-batches',         [FlockBatchController::class, 'store']);
+        Route::put('flock-batches/{id}',     [FlockBatchController::class, 'update']);
+        Route::delete('flock-batches/{id}',  [FlockBatchController::class, 'destroy']);
     });
+    // Workers can view flock batches
+    Route::get('flock-batches',      [FlockBatchController::class, 'index']);
+    Route::get('flock-batches/{id}', [FlockBatchController::class, 'show']);
 
     Route::post('egg-collections', [EggCollectionController::class, 'store']);
 
