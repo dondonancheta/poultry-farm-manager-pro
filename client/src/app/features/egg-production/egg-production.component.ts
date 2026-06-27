@@ -319,7 +319,18 @@ export class EggProductionComponent implements OnInit {
   ngOnInit(): void {
     // Load collection records from API
     this.eggSvc.getAll({ page: 1 }).subscribe({
-      next: (res) => this.records.set(res.data as any),
+      next: (res) => this.records.set((res.data as any[]).map(r => ({
+        ...r,
+        collector:      typeof r.collector === 'object' ? (r.collector?.name ?? '—') : (r.collector ?? '—'),
+        batchCode:      r.batch_code ?? r.flock_batch?.batch_code ?? '—',
+        buildingName:   r.building?.name ?? '—',
+        collectionDate: r.collection_date,
+        collectionTime: r.collection_time,
+        totalCollected: r.total_collected ?? 0,
+        goodEggs:       r.good_eggs ?? 0,
+        defects:        (r.cracked ?? 0) + (r.dirty ?? 0) + (r.spoiled ?? 0) + (r.rejected ?? 0),
+        verifiedStatus: r.verified_status ?? 'pending',
+      }))),
       error: ()   => this.records.set(MOCK_RECORDS),
     });
 
@@ -366,7 +377,7 @@ export class EggProductionComponent implements OnInit {
       if (this.filterBuilding && r.building !== this.filterBuilding) return false;
       if (q && !r.batchCode.toLowerCase().includes(q) &&
                !r.building.toLowerCase().includes(q) &&
-               !r.collector.toLowerCase().includes(q)) return false;
+               !(r.collector?.toString() ?? '').toLowerCase().includes(q)) return false;
       return true;
     });
   });
