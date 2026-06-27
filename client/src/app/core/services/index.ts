@@ -170,3 +170,4 @@ export class MasterDataService extends ApiService {
 export { SalesService } from './sales.service';
 export { HealthService as HealthServiceV2 } from './health.service';
 export { ReportService as ReportServiceV2 } from './report.service';
+export { DataRefreshService } from './data-refresh.service';

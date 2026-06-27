@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { EggCollectionService } from '../../core/services/egg-collection.service';
 import { FlockBatchService } from '../../core/services/flock-batch.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { DataRefreshService } from '../../core/services/data-refresh.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { EggStockService } from '../../core/services/egg-stock.service';
 
@@ -287,6 +288,7 @@ export class EggCollectionComponent implements OnInit {
   private eggSvc    = inject(EggCollectionService);
   private batchSvc  = inject(FlockBatchService);
   private auth      = inject(AuthService);
+  private refreshSvc = inject(DataRefreshService);
   private notifSvc    = inject(NotificationService);
   private eggStockSvc = inject(EggStockService);
 
@@ -415,6 +417,7 @@ export class EggCollectionComponent implements OnInit {
           building: this.form.building,
           forRoles: ['admin','manager','supervisor'],
         });
+        this.refreshSvc.emit('egg-collections');
         this.form = this.blankForm();
         this.submitting.set(false);
         this.saved.set(true);

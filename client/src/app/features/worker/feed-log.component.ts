@@ -1,3 +1,4 @@
+import { DataRefreshService } from '../../core/services/data-refresh.service';
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -285,6 +286,7 @@ const SESSIONS   = ['Morning (5:00–7:00 AM)', 'Noon (11:00 AM–1:00 PM)', 'Af
   `,
 })
 export class FeedLogComponent {
+  private refreshSvc = inject(DataRefreshService);
   private feedSvc = inject(FeedService);
   today = new Date().toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -366,7 +368,8 @@ export class FeedLogComponent {
     };
     this.selectedFeed = null;
     this.submitting.set(false);
-    this.saved.set(true);
+    this.refreshSvc.emit('feed');
+        this.saved.set(true);
     setTimeout(() => this.saved.set(false), 3000);
   }
 }

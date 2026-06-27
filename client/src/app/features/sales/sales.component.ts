@@ -1,3 +1,4 @@
+import { DataRefreshService } from '../../core/services/data-refresh.service';
 import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -747,6 +748,7 @@ function daysAgo(n: number): string { const d = new Date(); d.setDate(d.getDate(
   `,
 })
 export class SalesComponent implements OnInit, OnDestroy {
+  private refreshSvc = inject(DataRefreshService);
   private api    = inject(ApiService);
   private eggStockSvc = inject(EggStockService);
   private notifSvc    = inject(NotificationService);

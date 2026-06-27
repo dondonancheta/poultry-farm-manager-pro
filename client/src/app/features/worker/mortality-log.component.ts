@@ -1,3 +1,4 @@
+import { DataRefreshService } from '../../core/services/data-refresh.service';
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -302,6 +303,7 @@ const LOCATIONS    = ['Near feeders', 'Near drinkers', 'Corner of house', 'Cente
   `,
 })
 export class MortalityLogComponent {
+  private refreshSvc = inject(DataRefreshService);
   private mortSvc   = inject(MortalityService);
   private notifSvc  = inject(NotificationService);
   today = new Date().toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -405,7 +407,8 @@ export class MortalityLogComponent {
       location: LOCATIONS[0], symptoms: '', disposalMethod: DISPOSALS[0], recordedBy: '',
     };
     this.submitting.set(false);
-    this.saved.set(true);
+    this.refreshSvc.emit('mortality');
+        this.saved.set(true);
     setTimeout(() => this.saved.set(false), 3000);
   }
 }

@@ -1,3 +1,6 @@
+import { DataRefreshService } from '../../core/services/data-refresh.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -294,6 +297,8 @@ const MOCK_RECORDS: CollectionRecord[] = Array.from({ length: 14 }, (_, i) => {
   `,
 })
 export class EggProductionComponent implements OnInit {
+  private refreshSvc = inject(DataRefreshService);
+  private destroy$   = new Subject<void>();
   private eggSvc = inject(EggCollectionService);
 
   today = new Date().toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -317,6 +322,21 @@ export class EggProductionComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.loadData();
+    // Re-fetch when another component saves a new record
+    this.refreshSvc.refresh$.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      if (event === 'egg-collections' || event === 'all') {
+        this.loadData();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadData(): void {
     // Load collection records from API
     this.eggSvc.getAll({ page: 1 }).subscribe({
       next: (res) => this.records.set((res.data as any[]).map(r => ({

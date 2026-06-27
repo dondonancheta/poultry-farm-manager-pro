@@ -212,24 +212,7 @@ export class WorkerHomeComponent implements OnInit {
 
   get workerName(): string { return this.auth.user()?.name ?? 'Worker'; }
 
-  ngOnInit(): void {
-    this.loading.set(true);
-    const today = new Date().toISOString().split('T')[0];
-    this.eggSvc.getAll({ date: today, page: 1 }).subscribe({
-      next: (res: any) => {
-        const records = res?.data ?? [];
-        this.todaySubmitted.set(records.length > 0);
-        this.todayEggCount.set(
-          records.reduce((s: number, r: any) => {
-            const sizes = r.sizes ?? {};
-            return s + Object.values(sizes).reduce((a: number, v: any) => a + (Number(v) || 0), 0);
-          }, 0)
-        );
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
+  // todaySubmitted loaded in ngOnInit below
 
   today = new Date().toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   pendingCount = 2;
@@ -248,12 +231,23 @@ export class WorkerHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTodayLogs();
+    // Also load today's summary
+    const today = new Date().toISOString().split('T')[0];
+    this.eggSvc.getAll({ date: today, page: 1 }).subscribe({
+      next: (res: any) => {
+        const records = res?.data ?? [];
+        this.todaySubmitted.set(records.length > 0);
+        this.todayEggCount.set(records.reduce((s: number, r: any) => s + (r.total_collected ?? 0), 0));
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 
   loadTodayLogs(): void {
     // Load today's egg collections from API
-    this.eggSvc.getCollections({ date: new Date().toISOString().split('T')[0] })
-      .subscribe(res => {
+    this.eggSvc.getAll({ date: new Date().toISOString().split('T')[0], page: 1 })
+      .subscribe((res: any) => {
         const collections = res?.data ?? [];
         this.todayLogs = collections.map((ec: any) => ({
           icon: 'egg',
