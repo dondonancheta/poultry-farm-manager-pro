@@ -133,7 +133,7 @@ interface TodayLog {
       <!-- Quick egg collection form ─────────────────────────────────────── -->
       <div class="bg-primary-container rounded-2xl p-lg">
         <div class="flex items-center gap-sm mb-md">
-          <span class="material-symbols-outlined text-on-primary-container text-[22px]"
+          <span class="material-symbols-outlined text-white text-[22px]"
                 style="font-variation-settings: 'FILL' 1">egg</span>
           <h3 class="font-bold text-on-primary-container" style="font-size:16px">
             Quick Egg Collection Entry
@@ -142,12 +142,12 @@ interface TodayLog {
 
         <div class="grid grid-cols-2 gap-sm mb-md">
           <div>
-            <label class="text-[11px] font-bold text-on-primary-container opacity-80 block mb-xs uppercase">
+            <label class="text-[11px] font-bold text-white block mb-xs uppercase">
               Building
             </label>
             <select [(ngModel)]="eggForm.building"
                     class="w-full bg-white/20 border border-white/30 rounded-lg px-sm py-xs
-                           text-on-primary-container text-body-md focus:outline-none focus:ring-2
+                           text-white text-body-md focus:outline-none focus:ring-2
                            focus:ring-white/40">
               <option value="Alpha-1">Alpha-1</option>
               <option value="Beta-2">Beta-2</option>
@@ -155,30 +155,30 @@ interface TodayLog {
             </select>
           </div>
           <div>
-            <label class="text-[11px] font-bold text-on-primary-container opacity-80 block mb-xs uppercase">
+            <label class="text-[11px] font-bold text-white block mb-xs uppercase">
               Total Collected
             </label>
             <input type="number" [(ngModel)]="eggForm.total" placeholder="0"
                    class="w-full bg-white/20 border border-white/30 rounded-lg px-sm py-xs
-                          text-on-primary-container text-body-md focus:outline-none focus:ring-2
+                          text-white text-body-md focus:outline-none focus:ring-2
                           focus:ring-white/40 placeholder-white/40"/>
           </div>
           <div>
-            <label class="text-[11px] font-bold text-on-primary-container opacity-80 block mb-xs uppercase">
+            <label class="text-[11px] font-bold text-white block mb-xs uppercase">
               Cracked / Damaged
             </label>
             <input type="number" [(ngModel)]="eggForm.cracked" placeholder="0"
                    class="w-full bg-white/20 border border-white/30 rounded-lg px-sm py-xs
-                          text-on-primary-container text-body-md focus:outline-none focus:ring-2
+                          text-white text-body-md focus:outline-none focus:ring-2
                           focus:ring-white/40 placeholder-white/40"/>
           </div>
           <div>
-            <label class="text-[11px] font-bold text-on-primary-container opacity-80 block mb-xs uppercase">
+            <label class="text-[11px] font-bold text-white block mb-xs uppercase">
               Spoiled / Rejected
             </label>
             <input type="number" [(ngModel)]="eggForm.spoiled" placeholder="0"
                    class="w-full bg-white/20 border border-white/30 rounded-lg px-sm py-xs
-                          text-on-primary-container text-body-md focus:outline-none focus:ring-2
+                          text-white text-body-md focus:outline-none focus:ring-2
                           focus:ring-white/40 placeholder-white/40"/>
           </div>
         </div>
