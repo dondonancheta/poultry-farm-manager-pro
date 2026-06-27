@@ -6,6 +6,7 @@ use App\Http\Middleware\CheckOwnership;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,23 +15,20 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-        // CORS must be the very first middleware — before everything else
-        $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
+        // CORS must be absolute first — handles OPTIONS preflight
+        $middleware->prepend(HandleCors::class);
 
-        // Force JSON on all API responses
+        // Force JSON responses for all API routes
         $middleware->api(prepend: [
             ForceJsonResponse::class,
         ]);
 
-        // Named aliases
+        // Named middleware aliases
         $middleware->alias([
             'auth.jwt'  => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
             'role'      => RoleMiddleware::class,
             'ownership' => CheckOwnership::class,
         ]);
-
-        // Disable rate limiting (causes 429 on free tier with multiple requests)
-        $middleware->throttleApi('60,1'); // 60 requests per minute
 
     })
     ->withExceptions(function (Exceptions $exceptions) {

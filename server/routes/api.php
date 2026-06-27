@@ -1,4 +1,9 @@
 // ── Health check (public) ──────────────────────────────────────────────────
+// ── Handle CORS preflight OPTIONS requests ────────────────────────────────────
+Route::options('{any}', function() {
+    return response()->json('OK', 200);
+})->where('any', '.*');
+
 Route::get('health', fn() => response()->json(['status' => 'ok', 'time' => now()]));
 
 <?php

@@ -29,8 +29,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy full server folder (includes artisan, public/, storage/)
+# Copy server folder (includes artisan, public/, storage/)
 COPY server/ .
+
+# Verify public/index.php exists
+RUN ls -la public/ && echo "public/ OK"
 
 # Install PHP dependencies
 RUN composer install \
@@ -41,13 +44,17 @@ RUN composer install \
     --prefer-dist \
     --ignore-platform-reqs
 
-# Dump autoload and disable platform check (vendor was built on PHP 8.4, Docker runs 8.3)
+# Dump autoload and disable platform check
 RUN composer dump-autoload --optimize --no-scripts \
- && composer config --no-plugins allow-plugins.composer/package-versions-deprecated true 2>/dev/null || true \
- && php -r "file_put_contents('/var/www/html/vendor/composer/platform_check.php', '<?php // platform check disabled');"
+ && php -r "file_put_contents('/var/www/html/vendor/composer/platform_check.php', '<?php // disabled');"
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
+# Create required directories and set permissions
+RUN mkdir -p storage/logs \
+             storage/framework/cache \
+             storage/framework/sessions \
+             storage/framework/views \
+             bootstrap/cache \
+ && chown -R www-data:www-data /var/www/html \
  && chmod -R 755 storage bootstrap/cache \
  && chmod +x artisan
 
