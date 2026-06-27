@@ -1,14 +1,13 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
-import { tap, catchError, delay } from 'rxjs/operators';
+import { Observable, of, throwError, timer } from 'rxjs';
+import { tap, catchError, delay, switchMap, retryWhen, take } from 'rxjs/operators';
 import { User } from '../models';
 import { environment } from '../../../environments/environment';
 
 interface LoginResponse { token: string; user: User; }
 
-// ── Demo users — used when no API is available ────────────────────────────────
 const DEMO_USERS: Record<string, { password: string; user: User }> = {
   'worker1@worker.com':         { password: 'worker1',     user: { id:7,  name:'Juan dela Cruz',       email:'worker1@worker.com',         role:'worker'     } },
   'worker2@worker.com':         { password: 'worker2',     user: { id:8,  name:'Rosa Mendoza',          email:'worker2@worker.com',         role:'worker'     } },
@@ -37,30 +36,26 @@ export class AuthService {
     return r ? roles.includes(r) : false;
   }
 
-  // ── Login ─────────────────────────────────────────────────────────────────
-  // If apiUrl is set → try real API first, fallback to demo on network error
-  // If apiUrl is empty → use demo mode directly (Vercel without backend)
   login(email: string, password: string): Observable<LoginResponse> {
     const apiUrl = environment.apiUrl?.trim();
+    if (!apiUrl) return this.demoLogin(email, password);
 
-    // No backend configured — go straight to demo
-    if (!apiUrl) {
-      return this.demoLogin(email, password);
-    }
-
-    // Try real API
-    return this.http
-      .post<LoginResponse>(`${apiUrl}/auth/login`, { email, password })
-      .pipe(
-        tap(({ token, user }) => this.persist(token, user)),
-        catchError(err => {
-          // Network error (API not reachable) → fall back to demo
-          if (err.status === 0 || err.status === 504 || err.status === 502) {
-            return this.demoLogin(email, password);
-          }
-          return throwError(() => err);
-        })
-      );
+    // Wake the API first, then login
+    return this.http.get(`${apiUrl}/health`).pipe(
+      catchError(() => of(null)), // ignore health check errors
+      switchMap(() =>
+        this.http.post<LoginResponse>(`${apiUrl}/auth/login`, { email, password }).pipe(
+          tap(({ token, user }) => this.persist(token, user)),
+          catchError(err => {
+            // Network error → fall back to demo
+            if (err.status === 0 || err.status === 503 || err.status === 502 || err.status === 504) {
+              return this.demoLogin(email, password);
+            }
+            return throwError(() => err);
+          })
+        )
+      )
+    );
   }
 
   private demoLogin(email: string, password: string): Observable<LoginResponse> {
@@ -75,10 +70,7 @@ export class AuthService {
         tap(({ token, user }) => this.persist(token, user))
       );
     }
-    return throwError(() => ({
-      status: 401,
-      error:  { message: 'Invalid email or password.' },
-    }));
+    return throwError(() => ({ status: 401, error: { message: 'Invalid email or password.' } }));
   }
 
   logout(): void {
@@ -99,12 +91,12 @@ export class AuthService {
   }
 
   forgotPassword(email: string) {
-    if (!environment.apiUrl) return of({ message: 'Demo mode — check email for reset link.' });
+    if (!environment.apiUrl) return of({ message: 'Demo mode.' });
     return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/forgot-password`, { email });
   }
 
   resetPassword(token: string, email: string, password: string) {
-    if (!environment.apiUrl) return of({ message: 'Demo mode — password reset simulated.' });
+    if (!environment.apiUrl) return of({ message: 'Demo mode.' });
     return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/reset-password`, {
       token, email, password, password_confirmation: password,
     });
